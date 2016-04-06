@@ -1,16 +1,14 @@
 {
   "name": "node-ncid-client",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "It can be connect to ncid server",
   "main": "index.js",
-  
   "scripts": {
     "run-example": "npm run compile && babel-node example/index.js --presets es2015",
     "test": "echo \"Error: no test specified\" && exit 1",
     "compile": "babel --presets es2015,stage-0 -d lib/ src/",
     "prepublish": "npm run compile"
   },
-
   "repository": {
     "type": "git",
     "url": "git+https://github.com/famersbs/node-ncid-client.git"
@@ -24,11 +22,9 @@
     "url": "https://github.com/famersbs/node-ncid-client/issues"
   },
   "homepage": "https://github.com/famersbs/node-ncid-client#readme",
-
   "devDependencies": {
     "babel-cli": "^6.4.5",
     "babel-preset-es2015": "^6.3.13",
     "babel-preset-stage-0": "^6.3.13"
-
   }
 }
