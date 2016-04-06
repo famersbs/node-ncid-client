@@ -1,16 +1,36 @@
-var net = require('net');
+//import NcidClient from "../lib/ncid-client"
+import NcidClient from "../lib/ncid-client"
 
-var client = new net.Socket();
-client.connect(3333, '127.0.0.1', function() {
-	console.log('Connected');
-	//client.write('DOCALL 4154818044\n');
+import readline from "readline"
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
 });
 
-client.on('data', function(data) {
-	console.log('Received: ' + data);
-	//client.destroy(); // kill client after server's response
-});
 
-client.on('close', function() {
-	console.log('Connection closed');
-});
+
+var client = new NcidClient( "localhost", "3333" )
+
+console.log( NcidClient.on )
+
+client.on( NcidClient.EVENT.ONCONNECT, () => { console.log("onconnect"); } )
+		.on( NcidClient.EVENT.ONMESSAGE, (data) => { console.log("msg: " + data ); } )
+		.start()
+
+function inputIterator( client ){
+	function iterate( prompt, cb ){
+		rl.question( prompt, cb )
+	}
+	rl.question( ">", (answer) => {
+		console.log("cmd : ",answer);
+		if( answer == "quit" ){
+			rl.close();
+		}else{
+			client.push( answer )
+			inputIterator( client )
+		}
+	})
+}
+
+inputIterator( client )

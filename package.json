@@ -5,6 +5,7 @@
   "main": "index.js",
   
   "scripts": {
+    "run-example": "npm run compile && babel-node example/index.js --presets es2015",
     "test": "echo \"Error: no test specified\" && exit 1",
     "compile": "babel --presets es2015,stage-0 -d lib/ src/",
     "prepublish": "npm run compile"
@@ -28,5 +29,6 @@
     "babel-cli": "^6.4.5",
     "babel-preset-es2015": "^6.3.13",
     "babel-preset-stage-0": "^6.3.13"
+
   }
 }
