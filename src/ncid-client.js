@@ -1,6 +1,50 @@
 import net from 'net'
 import EventEmitter from 'events';
 
+class RecvMsg {
+
+	constructor( msg ){
+		this.__parse( msg )
+	}
+
+	__parse( msg ){
+
+		// Seprate Header and Body
+		if( msg[0] >= '0' && msg[0] <= '9' ){
+
+			this.header = msg.substring( 0, 3 ).trim()
+			this.body = msg.substring( 4 ).trim()
+
+		}else {
+			let tmp = msg.split(":")
+
+			this.header = tmp[0].trim()
+			this.body = tmp.splice(1).join().trim()
+		}
+
+		// Body Parse to info
+		this.info = []
+		switch( this.header ){
+			case "CID":  		// *DATE*04072016*TIME*1520*LINE*-*NMBR*14154818044*MESG*NONE*NAME*Cell Phone   CA*
+			case "CIDLOG": 		// *DATE*04072016*TIME*1520*LINE*-*NMBR*14154818044*MESG*NONE*NAME*Cell Phone   CA*
+			case "CIDINFO": 	// *LINE*-*RING*1*TIME*22,20,59*
+				var tmp = this.body.split( "*" )
+				//console.log("body parse " + tmp + " " + tmp.length )
+				for( let i = 1 ; i < tmp.length ; i = i + 2 ){
+					
+					if( "" == tmp[i].trim() ) {
+						break
+					}else{
+						this.info[ tmp[i] ] = tmp[ i + 1 ]
+					}
+
+					
+				}
+				break
+		}
+	}
+}
+
 export default class NcidClient {
 
 	static EVENT = { 
@@ -52,12 +96,10 @@ export default class NcidClient {
 		let temp = this.recv_buff.split("\n")
 
 		for( let i = 0 ; i < temp.length -1 ; ++ i ){
-			this.dispatcher.emit( NcidClient.EVENT.ONMESSAGE, temp[i] )
+			this.dispatcher.emit( NcidClient.EVENT.ONMESSAGE, new RecvMsg( temp[i] ) )
 		}
 
 		this.recv_buff = temp[ temp.length - 1 ]
-
-		console.log( "remind buff : ", this.recv_buff )
 	}
 
 }

@@ -8,14 +8,19 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-
-
 var client = new NcidClient( "localhost", "3333" )
 
-console.log( NcidClient.on )
-
 client.on( NcidClient.EVENT.ONCONNECT, () => { console.log("onconnect"); } )
-		.on( NcidClient.EVENT.ONMESSAGE, (data) => { console.log("msg: " + data ); } )
+		.on( NcidClient.EVENT.ONMESSAGE, (data) => { 
+
+			console.log("-------------------------\nRecv Message\nHeader : " + data.header )
+
+			for( var key in data.info ){
+				console.log( key, " : ", data.info[key] )
+			}
+			console.log("-------------------------\n" )
+
+		} )
 		.start()
 
 function inputIterator( client ){
