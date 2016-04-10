@@ -53,19 +53,24 @@ export default class NcidClient {
 					ONMESSAGE : "onmessage"
 	 				}
 
-	constructor( host, port, options ) {
+	constructor( host, port, options = {} ) {
+
 		this.dispatcher = new EventEmitter()
-		this.client = new net.Socket()
+		//this.client = new net.Socket()
 		this.host = host
 		this.port = port
+
+		this.state = 0		// 0 : none, 1: req_con, 2: connected
+
+		// add options
+		this._setOption( "auto_reconnect", options, true )
+		this._setOption( "reconnect_interval", options, 1000 )
 
 		this.recv_buff = ""
 	}
 
 	start(){
-		let client = this.client
-		client.on('data', this.__OnData.bind(this) )
-		client.connect( this.port, this.host, this.__OnConnect.bind(this) )
+		this._connect()
 		return this
 	}
 	stop(){
@@ -87,9 +92,50 @@ export default class NcidClient {
 	}
 
 	////////////////////////////////
+	/// internal functions
+	_connect(){
+		if( 0 != this.state ){
+			return
+		}
+
+		// Change State
+		this.state = 1
+		//this.client = new net.Socket()
+		let client = this.client = new net.Socket()//this.client
+		//client.removeAllListeners()
+		client.on('data', this.__OnData.bind(this) )
+		client.on( 'close', this.__OnDisconnect.bind(this) )
+		client.connect( this.port, 
+						this.host, 
+						this.__OnConnect.bind(this) )
+	}
+	_setOption( opt_name, options, default_value ) {
+		if( null != options[opt_name]){
+			this[opt_name] = options[opt_name]
+		}else{
+			this[opt_name] = default_value
+		}
+	}
+	////////////////////////////////
 	/// internal event
 	__OnConnect() {
+		this.state = 2
 		this.dispatcher.emit( NcidClient.EVENT.ONCONNECT )
+	}
+	__OnDisconnect() {
+
+		if( 1 == this.state ){
+			console.log( "It just connection error")
+		}else if( 2 == this.state ){
+			this.dispatcher.emit( NcidClient.EVENT.ONDISCONNECT )	
+		}
+
+		// reconnect
+		if( this.auto_reconnect ){
+			this.state = 0
+			console.log("Trying to reconnect after : " + this.reconnect_interval )
+			setTimeout( this._connect.bind(this), this.reconnect_interval )
+		}
 	}
 	__OnData( data ){
 		this.recv_buff += data

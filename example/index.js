@@ -8,7 +8,7 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-var client = new NcidClient( "localhost", "3333" )
+var client = new NcidClient( "localhost", "3333", { auto_reconnect: true, reconnect_interval: 1000 } )
 
 client.on( NcidClient.EVENT.ONCONNECT, () => { console.log("onconnect"); } )
 		.on( NcidClient.EVENT.ONMESSAGE, (data) => { 
@@ -21,6 +21,9 @@ client.on( NcidClient.EVENT.ONCONNECT, () => { console.log("onconnect"); } )
 			console.log("-------------------------\n" )
 
 		} )
+		.on( NcidClient.EVENT.ONDISCONNECT, () => {
+			console.log( "========================\n", "DISCONNECTED" )
+		})
 		.start()
 
 function inputIterator( client ){
