@@ -1,6 +1,5 @@
 //import NcidClient from "../lib/ncid-client"
-import NcidClient from "../lib/ncid-client"
-
+import { NcidClient } from "../"
 import readline from "readline"
 
 const rl = readline.createInterface({

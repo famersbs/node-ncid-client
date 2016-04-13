@@ -9,11 +9,11 @@ Install :
 
 * Install with [npm](https://npmjs.org): `npm install node-ncid-client`
 
-Sample Code :
+Sample Code - es6:
 
 ```
 
-import NcidClient from "../lib/ncid-client"
+import NcidClient from "node-ncid-client"
 
 var client = new NcidClient( "localhost", 
 							 "3333", 
@@ -40,8 +40,24 @@ client
 
 ```
 
+Sample Code - es5:
+
+```
+.
+.
+.
+var NcidClient = require( "node-ncid-client" ).NcidClient
+.
+.
+.
+[ Same as es6 ]
+
+
+```
+
+
 Options :
 
-* When create new NcidClient instance, you can set some options.
-** auto_reconnect 		: Bool 
-** reconnect_interval	: Int ( Millisecond )
+# When create new NcidClient instance, you can set some options.
+## auto_reconnect 		: Bool 
+## reconnect_interval	: Int ( Millisecond )
