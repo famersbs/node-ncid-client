@@ -1,6 +1,6 @@
 {
   "name": "node-ncid-client",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "It can be connect to ncid server",
   "main": "index.js",
   "scripts": {
