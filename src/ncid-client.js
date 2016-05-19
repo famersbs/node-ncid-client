@@ -50,7 +50,8 @@ export default class NcidClient {
 	static EVENT = { 
 					ONCONNECT : "connect",
 					ONDISCONNECT : "disconnect",
-					ONMESSAGE : "onmessage"
+					ONMESSAGE : "onmessage",
+					ONERROR : "error"
 	 				}
 
 	constructor( host, port, options = {} ) {
@@ -104,10 +105,12 @@ export default class NcidClient {
 		let client = this.client = new net.Socket()//this.client
 		//client.removeAllListeners()
 		client.on('data', this.__OnData.bind(this) )
-		client.on( 'close', this.__OnDisconnect.bind(this) )
+		client.on('close', this.__OnDisconnect.bind(this) )
+		client.on('error', this.__OnError.bind(this) )
 		client.connect( this.port, 
 						this.host, 
 						this.__OnConnect.bind(this) )
+
 	}
 	_setOption( opt_name, options, default_value ) {
 		if( null != options[opt_name]){
@@ -131,11 +134,7 @@ export default class NcidClient {
 		}
 
 		// reconnect
-		if( this.auto_reconnect ){
-			this.state = 0
-			console.log("Trying to reconnect after : " + this.reconnect_interval )
-			setTimeout( this._connect.bind(this), this.reconnect_interval )
-		}
+		this.__AutoReconnect()
 	}
 	__OnData( data ){
 		this.recv_buff += data
@@ -146,6 +145,19 @@ export default class NcidClient {
 		}
 
 		this.recv_buff = temp[ temp.length - 1 ]
+	}
+	__OnError( err ){
+		this.dispatcher.emit( NcidClient.EVENT.ONERROR, err )
+		this.__AutoReconnect()
+	}
+
+	__AutoReconnect(){
+		// reconnect
+		if( this.auto_reconnect ){
+			this.state = 0
+			console.log("Trying to reconnect after : " + this.reconnect_interval )
+			setTimeout( this._connect.bind(this), this.reconnect_interval )
+		}
 	}
 
 }
