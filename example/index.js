@@ -7,7 +7,7 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-var client = new NcidClient( "localhost", "3333", { auto_reconnect: true, reconnect_interval: 1000 } )
+var client = new NcidClient( "0.0.0.0", "3333", { auto_reconnect: true, reconnect_interval: 1000 } )
 
 client.on( NcidClient.EVENT.ONCONNECT, () => { console.log("onconnect"); } )
 		.on( NcidClient.EVENT.ONMESSAGE, (data) => { 

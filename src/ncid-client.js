@@ -99,17 +99,24 @@ export default class NcidClient {
 			return
 		}
 
+		var that = this
+
+		if( null != this.client ){
+			this.client.destroy()
+			this.client = null
+		}
+
 		// Change State
 		this.state = 1
-		//this.client = new net.Socket()
-		let client = this.client = new net.Socket()//this.client
-		//client.removeAllListeners()
-		client.on('data', this.__OnData.bind(this) )
-		client.on('close', this.__OnDisconnect.bind(this) )
-		client.on('error', this.__OnError.bind(this) )
-		client.connect( this.port, 
-						this.host, 
-						this.__OnConnect.bind(this) )
+		this.client = new net.Socket()
+		this.client.setNoDelay( true )
+		this.client.setKeepAlive( true, 100 )
+
+		this.client.on('data', this.__OnData.bind(this) )
+		this.client.on('close', this.__OnDisconnect.bind(this) )
+		this.client.on('error', function(ex){ that.__OnError.bind(that) } ) //function( ex ){ console.log( ex ); } )
+
+		this.client.connect( this.port, this.host, this.__OnConnect.bind(this) )
 
 	}
 	_setOption( opt_name, options, default_value ) {
@@ -121,14 +128,14 @@ export default class NcidClient {
 	}
 	////////////////////////////////
 	/// internal event
-	__OnConnect() {
+	__OnConnect( err ) {
 		this.state = 2
 		this.dispatcher.emit( NcidClient.EVENT.ONCONNECT )
 	}
 	__OnDisconnect() {
 
 		if( 1 == this.state ){
-			console.log( "It just connection error")
+			//console.log( "It just connection error")
 		}else if( 2 == this.state ){
 			this.dispatcher.emit( NcidClient.EVENT.ONDISCONNECT )	
 		}
@@ -138,6 +145,7 @@ export default class NcidClient {
 	}
 	__OnData( data ){
 		this.recv_buff += data
+		console.log( this.recv_buff )
 		let temp = this.recv_buff.split("\n")
 
 		for( let i = 0 ; i < temp.length -1 ; ++ i ){
@@ -147,8 +155,9 @@ export default class NcidClient {
 		this.recv_buff = temp[ temp.length - 1 ]
 	}
 	__OnError( err ){
-		this.dispatcher.emit( NcidClient.EVENT.ONERROR, err )
-		this.__AutoReconnect()
+		//this.dispatcher.emit( NcidClient.EVENT.ONERROR, err )
+		//this.__AutoReconnect()
+		
 	}
 
 	__AutoReconnect(){
